@@ -1,7 +1,7 @@
 #![no_std]
 
 use soroban_sdk::{
-    contract, contractimpl, contracttype, symbol_short, token, Address, Env, Symbol,
+    contract, contractimpl, contracttype, symbol_short, token, Address, Env,
 };
 
 // ---------------------------------------------------------------------------
@@ -15,6 +15,14 @@ pub enum StreamStatus {
     Paused = 1,
     Completed = 2,
     Cancelled = 3,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum StreamEvent {
+    Paused(u64),
+    Resumed(u64),
+    Cancelled(u64),
 }
 
 #[contracttype]
@@ -196,7 +204,7 @@ impl FluxoraStream {
         save_stream(&env, &stream);
 
         env.events()
-            .publish((symbol_short!("paused"), stream_id), ());
+            .publish((symbol_short!("paused"), stream_id), StreamEvent::Paused(stream_id));
     }
 
     /// Resume a paused stream.  Only the sender or admin may call this.
@@ -218,7 +226,7 @@ impl FluxoraStream {
         save_stream(&env, &stream);
 
         env.events()
-            .publish((symbol_short!("resumed"), stream_id), ());
+            .publish((symbol_short!("resumed"), stream_id), StreamEvent::Resumed(stream_id));
     }
 
     // -----------------------------------------------------------------------
@@ -273,7 +281,7 @@ impl FluxoraStream {
 
         // ------ 7. Emit event ------
         env.events()
-            .publish((symbol_short!("cancelled"), stream_id), unstreamed);
+            .publish((symbol_short!("cancelled"), stream_id), StreamEvent::Cancelled(stream_id));
     }
 
     // -----------------------------------------------------------------------
@@ -457,7 +465,7 @@ impl FluxoraStream {
         save_stream(&env, &stream);
 
         env.events()
-            .publish((symbol_short!("cancelled"), stream_id), unstreamed);
+            .publish((symbol_short!("cancelled"), stream_id), StreamEvent::Cancelled(stream_id));
     }
 }
 

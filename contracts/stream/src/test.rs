@@ -2,12 +2,12 @@
 extern crate std;
 
 use soroban_sdk::{
-    testutils::{Address as _, Ledger},
+    testutils::{Address as _, Ledger, Events},
     token::{Client as TokenClient, StellarAssetClient},
-    Address, Env,
+    Address, Env, FromVal,
 };
 
-use crate::{FluxoraStream, FluxoraStreamClient, StreamStatus};
+use crate::{FluxoraStream, FluxoraStreamClient, StreamStatus, StreamEvent};
 
 // ---------------------------------------------------------------------------
 // Test helpers
@@ -466,4 +466,53 @@ fn test_multiple_streams_independent() {
 
     assert_eq!(s0.status, StreamStatus::Cancelled);
     assert_eq!(s1.status, StreamStatus::Active);
+}
+
+// ---------------------------------------------------------------------------
+// Tests — Events
+// ---------------------------------------------------------------------------
+
+#[test]
+fn test_pause_resume_events() {
+    let ctx = TestContext::setup();
+    let stream_id = ctx.create_default_stream();
+
+    ctx.client().pause_stream(&stream_id);
+    
+    let events = ctx.env.events().all();
+    let last_event = events.last().unwrap();
+    
+    // Check pause event
+    // The event is published as ((symbol_short!("paused"), stream_id), StreamEvent::Paused(stream_id))
+    assert_eq!(
+        Option::<StreamEvent>::from_val(&ctx.env, &last_event.2).unwrap(),
+        StreamEvent::Paused(stream_id)
+    );
+
+    ctx.client().resume_stream(&stream_id);
+    let events = ctx.env.events().all();
+    let last_event = events.last().unwrap();
+    
+    // Check resume event
+    assert_eq!(
+        Option::<StreamEvent>::from_val(&ctx.env, &last_event.2).unwrap(),
+        StreamEvent::Resumed(stream_id)
+    );
+}
+
+#[test]
+fn test_cancel_event() {
+    let ctx = TestContext::setup();
+    let stream_id = ctx.create_default_stream();
+
+    ctx.client().cancel_stream(&stream_id);
+    
+    let events = ctx.env.events().all();
+    let last_event = events.last().unwrap();
+    
+    // Check cancel event
+    assert_eq!(
+        Option::<StreamEvent>::from_val(&ctx.env, &last_event.2).unwrap(),
+        StreamEvent::Cancelled(stream_id)
+    );
 }
