@@ -222,8 +222,10 @@ impl FluxoraStream {
         stream.status = StreamStatus::Paused;
         save_stream(&env, &stream);
 
-        env.events()
-            .publish((symbol_short!("paused"), stream_id), StreamEvent::Paused(stream_id));
+        env.events().publish(
+            (symbol_short!("paused"), stream_id),
+            StreamEvent::Paused(stream_id),
+        );
     }
 
     /// Resume a paused stream. Only the sender or admin may call this.
@@ -241,8 +243,10 @@ impl FluxoraStream {
         stream.status = StreamStatus::Active;
         save_stream(&env, &stream);
 
-        env.events()
-            .publish((symbol_short!("resumed"), stream_id), StreamEvent::Resumed(stream_id));
+        env.events().publish(
+            (symbol_short!("resumed"), stream_id),
+            StreamEvent::Resumed(stream_id),
+        );
     }
 
     /// Cancel a stream and refund unstreamed funds to the sender.
@@ -273,8 +277,10 @@ impl FluxoraStream {
         stream.status = StreamStatus::Cancelled;
         save_stream(&env, &stream);
 
-        env.events()
-            .publish((symbol_short!("cancelled"), stream_id), StreamEvent::Cancelled(stream_id));
+        env.events().publish(
+            (symbol_short!("cancelled"), stream_id),
+            StreamEvent::Cancelled(stream_id),
+        );
     }
 
     /// Withdraw accrued-but-not-yet-withdrawn tokens to the recipient.
@@ -393,8 +399,10 @@ impl FluxoraStream {
         stream.status = StreamStatus::Cancelled;
         save_stream(&env, &stream);
 
-        env.events()
-            .publish((symbol_short!("cancelled"), stream_id), StreamEvent::Cancelled(stream_id));
+        env.events().publish(
+            (symbol_short!("cancelled"), stream_id),
+            StreamEvent::Cancelled(stream_id),
+        );
     }
 }
 

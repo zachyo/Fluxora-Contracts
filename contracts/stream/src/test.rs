@@ -2,12 +2,12 @@
 extern crate std;
 
 use soroban_sdk::{
-    testutils::{Address as _, Ledger, Events},
+    testutils::{Address as _, Events, Ledger},
     token::{Client as TokenClient, StellarAssetClient},
     Address, Env, FromVal,
 };
 
-use crate::{FluxoraStream, FluxoraStreamClient, StreamStatus, StreamEvent};
+use crate::{FluxoraStream, FluxoraStreamClient, StreamEvent, StreamStatus};
 
 // ---------------------------------------------------------------------------
 // Test helpers
@@ -665,10 +665,10 @@ fn test_pause_resume_events() {
     let stream_id = ctx.create_default_stream();
 
     ctx.client().pause_stream(&stream_id);
-    
+
     let events = ctx.env.events().all();
     let last_event = events.last().unwrap();
-    
+
     // Check pause event
     // The event is published as ((symbol_short!("paused"), stream_id), StreamEvent::Paused(stream_id))
     assert_eq!(
@@ -679,7 +679,7 @@ fn test_pause_resume_events() {
     ctx.client().resume_stream(&stream_id);
     let events = ctx.env.events().all();
     let last_event = events.last().unwrap();
-    
+
     // Check resume event
     assert_eq!(
         Option::<StreamEvent>::from_val(&ctx.env, &last_event.2).unwrap(),
@@ -693,10 +693,10 @@ fn test_cancel_event() {
     let stream_id = ctx.create_default_stream();
 
     ctx.client().cancel_stream(&stream_id);
-    
+
     let events = ctx.env.events().all();
     let last_event = events.last().unwrap();
-    
+
     // Check cancel event
     assert_eq!(
         Option::<StreamEvent>::from_val(&ctx.env, &last_event.2).unwrap(),
