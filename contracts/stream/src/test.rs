@@ -18,10 +18,10 @@ struct TestContext<'a> {
     env: Env,
     contract_id: Address,
     token_id: Address,
+    #[allow(dead_code)]
     admin: Address,
     sender: Address,
     recipient: Address,
-    admin: Address,
     sac: StellarAssetClient<'a>,
 }
 
@@ -58,7 +58,6 @@ impl<'a> TestContext<'a> {
             admin,
             sender,
             recipient,
-            admin,
             sac,
         }
     }
