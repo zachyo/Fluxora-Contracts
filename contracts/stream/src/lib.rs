@@ -441,31 +441,33 @@ impl FluxoraStream {
             stream.status == StreamStatus::Active,
             "stream is not active"
         );
-      
-stream.status = StreamStatus::Paused;
-save_stream(&env, &stream);
 
-env.events().publish(
-    (symbol_short!("paused"), stream_id),
-    StreamEvent::Paused(stream_id),
-);
+        stream.status = StreamStatus::Paused;
+        save_stream(&env, &stream);
 
-pub fn resume_stream_as_admin(env: Env, stream_id: u64) {
-    get_admin(&env).require_auth();
-    let mut stream = load_stream(&env, stream_id);
+        env.events().publish(
+            (symbol_short!("paused"), stream_id),
+            StreamEvent::Paused(stream_id),
+        );
+    }
 
-    assert!(
-        stream.status == StreamStatus::Paused,
-        "stream is not paused"
-    );
+    pub fn resume_stream_as_admin(env: Env, stream_id: u64) {
+        get_admin(&env).require_auth();
+        let mut stream = load_stream(&env, stream_id);
 
-    stream.status = StreamStatus::Active;
-    save_stream(&env, &stream);
+        assert!(
+            stream.status == StreamStatus::Paused,
+            "stream is not paused"
+        );
 
-    env.events().publish(
-        (symbol_short!("resumed"), stream_id),
-        StreamEvent::Resumed(stream_id),
-    );
+        stream.status = StreamStatus::Active;
+        save_stream(&env, &stream);
+
+        env.events().publish(
+            (symbol_short!("resumed"), stream_id),
+            StreamEvent::Resumed(stream_id),
+        );
+    }
 }
 
 #[cfg(test)]
